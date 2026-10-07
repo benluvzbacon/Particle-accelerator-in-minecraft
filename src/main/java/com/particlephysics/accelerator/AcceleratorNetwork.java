@@ -141,6 +141,10 @@ public final class AcceleratorNetwork {
     public String lastFailure = "";
     public long lastRefreshTick;
     public boolean beamWasLost;
+    /** Seconds the current beam has been circulating. */
+    public double beamAliveSeconds;
+    /** Seconds the machine has been running without a fault. */
+    public double faultFreeSeconds;
     public double doseRateHere;
 
     private int structureHash;
@@ -200,6 +204,12 @@ public final class AcceleratorNetwork {
                 }
             }
             components.add(component);
+            if (actual != null && actual.system() == MachineKind.System.DETECTOR) {
+                DetectorReading reading = new DetectorReading();
+                reading.kind = actual;
+                reading.pos = pos;
+                detectors.add(reading);
+            }
             String key = actual != null ? actual.id() : "missing";
             placedMaterials.merge(key, 1, Integer::sum);
             if (actual == null) {
@@ -364,7 +374,16 @@ public final class AcceleratorNetwork {
             }
         }
         boolean hasBeam = beam.intensity > 1.0;
+        if (hasBeam) {
+            beamAliveSeconds += dt;
+        }
+        if (machine.running && lastFailure.isEmpty()) {
+            faultFreeSeconds += dt;
+        } else if (!lastFailure.isEmpty()) {
+            faultFreeSeconds = 0.0;
+        }
         if (hadBeam && !hasBeam) {
+            beamAliveSeconds = 0.0;
             beamWasLost = true;
             log("Beam lost: " + (beam.lossReason.isEmpty() ? "unknown" : beam.lossReason));
             site.running = false;
@@ -693,8 +712,8 @@ public final class AcceleratorNetwork {
 
     private BlockPos lossPosition(double s) {
         Vec3 point = lattice.pointAt(s);
-        return new BlockPos((int) Math.floor(point.x), (int) Math.floor(point.y),
-                (int) Math.floor(point.z));
+        return new BlockPos((int) Math.floor(point.x()), (int) Math.floor(point.y()),
+                (int) Math.floor(point.z()));
     }
 
     // ------------------------------------------------------------------------------------------
@@ -891,6 +910,9 @@ public final class AcceleratorNetwork {
             research.collisionCount++;
             if (event.rare) {
                 research.unlock("rare_process_" + event.rareProcess.toLowerCase(Locale.ROOT));
+                if (event.sqrtS >= 100.0) {
+                    research.unlock("rare_high_energy");
+                }
             }
             discoverProducts(research, event);
         }

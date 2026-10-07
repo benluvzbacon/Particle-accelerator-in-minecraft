@@ -142,7 +142,7 @@ public final class BeamParticle {
             lossReason = reason;
             previousWorld = world;
             if (lattice != null) {
-                world = lattice.toWorld(s, Math.signum(x) * lattice.aperture(), y);
+                world = lattice.toWorld(s, Math.signum(x) * lattice.minAperture(), y);
             }
         }
     }

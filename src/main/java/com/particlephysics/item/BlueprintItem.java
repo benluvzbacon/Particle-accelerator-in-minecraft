@@ -35,6 +35,14 @@ public class BlueprintItem extends Item {
     }
 
     @Override
+    public void onCraftByPlayer(ItemStack stack, World world, PlayerEntity player) {
+        super.onCraftByPlayer(stack, world, player);
+        if (!world.isClient) {
+            com.particlephysics.world.ModState.research(player).unlock("crafted_blueprint");
+        }
+    }
+
+    @Override
     public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip,
                               TooltipType type) {
         super.appendTooltip(stack, context, tooltip, type);

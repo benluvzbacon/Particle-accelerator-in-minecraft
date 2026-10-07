@@ -30,6 +30,7 @@ public class SiteState extends PersistentStore {
         public int originX;
         public int originY;
         public int originZ;
+        public String world = "minecraft:overworld";
         public int size = 24;
         public int cells = 8;
         public Direction rotation = Direction.EAST;
@@ -86,6 +87,7 @@ public class SiteState extends PersistentStore {
             nbt.putUuid("id", id);
             nbt.putString("name", name);
             nbt.putString("kind", kind.name());
+            nbt.putString("world", world);
             nbt.putInt("x", originX);
             nbt.putInt("y", originY);
             nbt.putInt("z", originZ);
@@ -122,6 +124,9 @@ public class SiteState extends PersistentStore {
                 site.kind = AcceleratorDesign.Kind.valueOf(nbt.getString("kind"));
             } catch (IllegalArgumentException e) {
                 site.kind = AcceleratorDesign.Kind.RING;
+            }
+            if (nbt.contains("world")) {
+                site.world = nbt.getString("world");
             }
             site.originX = nbt.getInt("x");
             site.originY = nbt.getInt("y");
@@ -185,13 +190,14 @@ public class SiteState extends PersistentStore {
 
     /** Creates a site unless one already covers the volume; returns the existing one then. */
     public Site create(AcceleratorDesign.Kind kind, BlockPos origin, int size, int cells,
-                       Direction rotation, long gameTime) {
+                       Direction rotation, long gameTime, String world) {
         Site existing = at(origin);
         if (existing != null) {
             return existing;
         }
         Site site = new Site();
         site.kind = kind;
+        site.world = world;
         site.originX = origin.getX();
         site.originY = origin.getY();
         site.originZ = origin.getZ();
@@ -203,6 +209,16 @@ public class SiteState extends PersistentStore {
         sites.add(site);
         markDirty();
         return site;
+    }
+
+    /** The site in the given world whose volume contains the position, or null. */
+    public Site at(BlockPos pos, String worldId) {
+        for (Site site : sites) {
+            if (site.world.equals(worldId) && site.contains(pos, 4)) {
+                return site;
+            }
+        }
+        return null;
     }
 
     public boolean remove(Site site) {

@@ -42,6 +42,11 @@ public abstract class MachineBlock extends Block implements net.minecraft.block.
     }
 
     @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new com.particlephysics.blockentity.MachineBlockEntity(pos, state);
+    }
+
+    @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer,
                          ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);

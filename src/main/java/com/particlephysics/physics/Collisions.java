@@ -355,7 +355,7 @@ public final class Collisions {
             ParticleSpecies species = sampleHadron(random);
             double mass = species.mass();
             if (mass > energyBudget) {
-                species = ParticleSpecies.PION_CHARGED_MASS < energyBudget
+                species = Units.PION_CHARGED_MASS < energyBudget
                         ? (random.nextBoolean() ? ParticleSpecies.PION_PLUS
                         : ParticleSpecies.PION_MINUS)
                         : ParticleSpecies.PHOTON;

@@ -81,6 +81,15 @@ public final class ModNetworking {
         ServerPlayNetworking.send(player, new Sync(data));
     }
 
+    /** Sends the full local state of one machine to the player and opens its panel. */
+    public static void sendMachineState(PlayerEntity player, net.minecraft.block.entity.BlockEntity be) {
+        if (!(player instanceof ServerPlayerEntity serverPlayer)) {
+            return;
+        }
+        NbtCompound nbt = com.particlephysics.accelerator.AcceleratorController.machineStateNbt(be);
+        send(serverPlayer, nbt);
+    }
+
     public static void sendMessage(ServerPlayerEntity player, String text, boolean overlay) {
         NbtCompound nbt = new NbtCompound();
         nbt.putString("type", "message");

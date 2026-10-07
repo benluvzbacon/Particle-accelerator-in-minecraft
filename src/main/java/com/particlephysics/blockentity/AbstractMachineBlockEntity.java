@@ -46,6 +46,10 @@ public abstract class AbstractMachineBlockEntity extends BlockEntity implements 
     protected String statusLine = "";
     protected double measuredValue;
     protected double measuredTarget;
+    /** Component specific setpoint: RF voltage [MV], magnet trim, steering angle [deg]. */
+    protected double setpointA;
+    /** Component specific second setpoint: RF phase [deg], extra analogue channel. */
+    protected double setpointB;
 
     protected AbstractMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
                                          MachineKind kind, int inventorySize) {
@@ -104,6 +108,24 @@ public abstract class AbstractMachineBlockEntity extends BlockEntity implements 
 
     public double measuredTarget() {
         return measuredTarget;
+    }
+
+    public double setpointA() {
+        return setpointA;
+    }
+
+    public void setSetpointA(double value) {
+        this.setpointA = value;
+        markDirty();
+    }
+
+    public double setpointB() {
+        return setpointB;
+    }
+
+    public void setSetpointB(double value) {
+        this.setpointB = value;
+        markDirty();
     }
 
     public void setMeasuredTarget(double target) {
@@ -215,6 +237,8 @@ public abstract class AbstractMachineBlockEntity extends BlockEntity implements 
         statusLine = nbt.getString("Status");
         measuredValue = nbt.getDouble("Measured");
         measuredTarget = nbt.getDouble("Target");
+        setpointA = nbt.getDouble("SetpointA");
+        setpointB = nbt.getDouble("SetpointB");
     }
 
     @Override
@@ -228,6 +252,8 @@ public abstract class AbstractMachineBlockEntity extends BlockEntity implements 
         nbt.putString("Status", statusLine == null ? "" : statusLine);
         nbt.putDouble("Measured", measuredValue);
         nbt.putDouble("Target", measuredTarget);
+        nbt.putDouble("SetpointA", setpointA);
+        nbt.putDouble("SetpointB", setpointB);
     }
 
     // --- inventory ----------------------------------------------------------------------------
