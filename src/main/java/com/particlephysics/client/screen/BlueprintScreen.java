@@ -65,9 +65,17 @@ public class BlueprintScreen extends ModScreen {
         button("+ radius", left + 306, bottom, 70, 20, () -> adjust("size", 4));
         button("- cells", left + 380, bottom, 60, 20, () -> adjust("cells", -4));
         button("+ cells", left + 444, bottom, 60, 20, () -> adjust("cells", 4));
+        boolean showAll = data != null && data.getBoolean("all");
+        button(showAll ? "Ghosts: whole design" : "Ghosts: components", left + 516, bottom, 148, 20,
+                () -> {
+                    NbtCompound nbt = new NbtCompound();
+                    nbt.putString("route", "blueprint");
+                    nbt.putString("action", "all");
+                    com.particlephysics.net.ModNetworking.sendAction(nbt);
+                });
         if (mode == 1) {
-            button("Prev section", left + 520, bottom, 90, 20, () -> adjust("cycle", -1));
-            button("Next section", left + 614, bottom, 90, 20, () -> adjust("cycle", 1));
+            button("Prev section", left + 668, bottom, 90, 20, () -> adjust("cycle", -1));
+            button("Next section", left + 762, bottom, 90, 20, () -> adjust("cycle", 1));
         }
         if (mode == 3) {
             button("Layer -", left + 520, bottom, 70, 20, () -> adjust("layer", -1));
@@ -87,7 +95,7 @@ public class BlueprintScreen extends ModScreen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackground(context, mouseX, mouseY, delta);
+        drawBackgroundOnce(context, mouseX, mouseY, delta);
         NbtCompound data = ClientState.blueprint;
         if (data == null) {
             text(context, "No blueprint data yet - right click the blueprint again", 10, 50, WARN);
@@ -127,7 +135,7 @@ public class BlueprintScreen extends ModScreen {
         y += 12;
         for (String line : List.of(
                 "1. Deploy the blueprint where the centre of the machine should be.",
-                "2. Follow the ghost blocks: they are sent by the server for the real design.",
+                "2. Every ghost is the real block, translucent: its texture tells you what to make.",
                 "3. Place each block; the validator checks kind and orientation immediately.",
                 "4. Shield the tunnel (lead, concrete, water, borated polyethylene) before running.",
                 "5. Add power supplies, cooling units and cryogenics on the infrastructure ring.",
@@ -143,6 +151,11 @@ public class BlueprintScreen extends ModScreen {
                 DIM);
         text(context, "Rotation: design aligned to " + data.getString("rotation"), 14, y + 12,
                 DIM);
+        y += 24;
+        text(context, "Ghost outline colours: subsystem when the block is missing, amber when the "
+                + "block there is wrong or rotated.", 14, y, DIM);
+        text(context, "Use 'Ghosts: whole design' to preview the shielding and the service ring too.",
+                14, y + 12, DIM);
     }
 
     private void renderConstruction(DrawContext context, NbtCompound data) {

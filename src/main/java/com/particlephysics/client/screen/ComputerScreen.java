@@ -118,7 +118,7 @@ public class ComputerScreen extends ModScreen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackground(context, mouseX, mouseY, delta);
+        drawBackgroundOnce(context, mouseX, mouseY, delta);
         NbtCompound data = ClientState.computer;
         if (data == null) {
             text(context, "Waiting for the control computer...", 10, 40, WARN);

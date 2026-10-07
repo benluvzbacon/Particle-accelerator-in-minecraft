@@ -15,7 +15,7 @@ import net.minecraft.util.Formatting;
  * send an action to the server, and the small physics readout rows.
  */
 public abstract class ModScreen extends Screen {
-    protected static final int PANEL = 0xC0101018;
+    protected static final int PANEL = 0xF0101018;
     protected static final int BORDER = 0xFF3A7BD5;
     protected static final int TEXT = 0xE0E0E0;
     protected static final int GOOD = 0x80FF80;
@@ -30,6 +30,25 @@ public abstract class ModScreen extends Screen {
     @Override
     public boolean shouldPause() {
         return false;
+    }
+
+    /**
+     * Draws the vanilla screen background (world blur + darkening) exactly once.
+     *
+     * <p>This is deliberately not {@code Screen#renderBackground}: the blur is a post process applied
+     * to whatever is already in the frame buffer, so applying it a second time - which happens when
+     * both the screen and the framework ask for a background - would blur the text drawn in between.
+     * The panels of the mod therefore ask for the background once, then draw their text, then let
+     * {@code super.render} draw the buttons on top.
+     */
+    protected void drawBackgroundOnce(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.renderBackground(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+        // Intentionally empty; see drawBackgroundOnce. Widgets and the framework would otherwise
+        // blur the text that the screens draw on top of the background.
     }
 
     protected void panel(DrawContext context, int x, int y, int width, int height) {

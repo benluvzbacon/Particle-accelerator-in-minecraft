@@ -58,6 +58,13 @@ public class ClientHud implements HudRenderCallback {
                         0xFFFFFF);
                 y += 11;
             }
+            if (ClientState.nearestGhostDistance >= 0.0) {
+                context.drawTextWithShadow(client.textRenderer, Text.literal(String.format(
+                        "Build: %s   (%.0f m)", ClientState.nearestGhostName,
+                        ClientState.nearestGhostDistance)).formatted(Formatting.YELLOW), x, y,
+                        0xFFFFFF);
+                y += 11;
+            }
             context.drawTextWithShadow(client.textRenderer,
                     Text.literal("Right click the blueprint for the construction guide"),
                     x, y, 0xA0A0A0);

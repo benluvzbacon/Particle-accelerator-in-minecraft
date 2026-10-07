@@ -51,7 +51,7 @@ public class JournalScreen extends ModScreen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackground(context, mouseX, mouseY, delta);
+        drawBackgroundOnce(context, mouseX, mouseY, delta);
         NbtCompound data = ClientState.journal;
         panel(context, 186, 22, width - 194, height - 52);
         if (data == null) {

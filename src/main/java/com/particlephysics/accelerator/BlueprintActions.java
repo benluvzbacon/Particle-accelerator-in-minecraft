@@ -15,6 +15,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -42,6 +43,8 @@ public final class BlueprintActions {
         int mode;              // 0 overview, 1 construction, 2 materials, 3 layers, 4 systems, 5 diagnostics
         int layer;
         int cycle;
+        /** Preview the whole design, including shielding and the service ring. */
+        boolean showAll;
         UUID siteId;
     }
 
@@ -134,12 +137,15 @@ public final class BlueprintActions {
         nbt.putInt("errors", errors);
         nbt.put("issues", issues);
 
-        // --- ghost positions ------------------------------------------------------------------
+        // --- ghost positions, with the block each one wants and how far along it is -----------
+        ServerWorld world = (ServerWorld) player.getWorld();
         List<AcceleratorDesign.Slot> selected = selectSlots(design, network, ui);
         int[] px = new int[selected.size()];
         int[] py = new int[selected.size()];
         int[] pz = new int[selected.size()];
         int[] pk = new int[selected.size()];
+        int[] pstate = new int[selected.size()];
+        NbtList blocks = new NbtList();
         for (int i = 0; i < selected.size(); i++) {
             AcceleratorDesign.Slot slot = selected.get(i);
             BlockPos pos = design.worldPos(slot);
@@ -147,11 +153,16 @@ public final class BlueprintActions {
             py[i] = pos.getY();
             pz[i] = pos.getZ();
             pk[i] = slot.kind == null ? -1 : slot.kind.ordinal();
+            pstate[i] = stateOf(world, slot, pos, network);
+            blocks.add(net.minecraft.nbt.NbtString.of(blockIdOf(slot)));
         }
         nbt.putIntArray("px", px);
         nbt.putIntArray("py", py);
         nbt.putIntArray("pz", pz);
         nbt.putIntArray("pk", pk);
+        nbt.putIntArray("pstate", pstate);
+        nbt.put("blocks", blocks);
+        nbt.putBoolean("all", ui.showAll);
 
         ModNetworking.send(player, nbt);
     }
@@ -159,36 +170,89 @@ public final class BlueprintActions {
     /** The slots the current mode and cycle want to preview. */
     private static List<AcceleratorDesign.Slot> selectSlots(AcceleratorDesign design,
                                                             AcceleratorNetwork network, Ui ui) {
-        List<AcceleratorDesign.Slot> out = new ArrayList<>();
-        if (design.kind() == AcceleratorDesign.Kind.RING) {
-            List<AcceleratorDesign.Slot> beamline = new ArrayList<>();
-            for (AcceleratorDesign.Slot slot : design.slots()) {
-                if (!slot.isShielding() && !slot.isInfrastructure()) {
-                    beamline.add(slot);
-                }
-            }
-            if (beamline.isEmpty()) {
-                return out;
-            }
-            int perCycle = Math.max(8, beamline.size() / 8);
-            int start = Math.max(0, ui.cycle * perCycle);
-            for (int i = start; i < Math.min(beamline.size(), start + perCycle); i++) {
-                out.add(beamline.get(i));
-            }
-            if (out.isEmpty()) {
-                ui.cycle = 0;
-                out.addAll(beamline.subList(0, Math.min(perCycle, beamline.size())));
-            }
-            return out;
-        }
+        List<AcceleratorDesign.Slot> source = new ArrayList<>();
         for (AcceleratorDesign.Slot slot : design.slots()) {
-            if (ui.mode == 3 && slot.offset.getY() != design.layers().get(Math.max(0, Math.min(
-                    design.layers().size() - 1, ui.layer)))) {
-                continue;
+            if (ui.showAll || (!slot.isShielding() && !slot.isInfrastructure())) {
+                source.add(slot);
             }
-            out.add(slot);
+        }
+        if (source.isEmpty()) {
+            return source;
+        }
+        // Eight chunks through the design, so the player always sees an amount of ghosts that can
+        // actually be built in one go.
+        int perCycle = Math.max(8, source.size() / 8);
+        int start = Math.max(0, ui.cycle) * perCycle;
+        if (start >= source.size()) {
+            ui.cycle = 0;
+            start = 0;
+        }
+        List<AcceleratorDesign.Slot> out = new ArrayList<>(
+                source.subList(start, Math.min(source.size(), start + perCycle)));
+        if (design.kind() == AcceleratorDesign.Kind.LINAC && ui.mode == 3) {
+            List<Integer> layers = design.layers();
+            int layer = layers.get(Math.max(0, Math.min(layers.size() - 1, ui.layer)));
+            out.removeIf(slot -> slot.offset.getY() != layer);
         }
         return out;
+    }
+
+    /** The block a slot wants, as a registry id the client can resolve. */
+    private static String blockIdOf(AcceleratorDesign.Slot slot) {
+        if (slot.kind != null) {
+            net.minecraft.block.Block block = com.particlephysics.registry.ModBlocks.forKind(slot.kind);
+            if (block != null) {
+                return net.minecraft.registry.Registries.BLOCK.getId(block).toString();
+            }
+        }
+        net.minecraft.block.Block block = shieldingBlock(slot.materialKey);
+        return net.minecraft.registry.Registries.BLOCK.getId(block).toString();
+    }
+
+    private static net.minecraft.block.Block shieldingBlock(String materialKey) {
+        return switch (materialKey == null ? "" : materialKey) {
+            case "lead_shielding" -> com.particlephysics.registry.ModBlocks.LEAD_SHIELDING;
+            case "lead_block" -> com.particlephysics.registry.ModBlocks.LEAD_BLOCK;
+            case "water_shielding" -> com.particlephysics.registry.ModBlocks.WATER_SHIELDING;
+            case "borated_polyethylene" ->
+                    com.particlephysics.registry.ModBlocks.BORATED_POLYETHYLENE;
+            case "machine_casing" -> com.particlephysics.registry.ModBlocks.MACHINE_CASING;
+            case "cryostat_wall" -> com.particlephysics.registry.ModBlocks.CRYOSTAT_WALL;
+            default -> com.particlephysics.registry.ModBlocks.CONCRETE_SHIELDING;
+        };
+    }
+
+    /** 0 = missing, 1 = wrong block or orientation, 2 = built correctly. */
+    private static int stateOf(ServerWorld world, AcceleratorDesign.Slot slot, BlockPos pos,
+                               AcceleratorNetwork network) {
+        net.minecraft.block.BlockState state = world.getBlockState(pos);
+        if (slot.kind != null && !slot.isInfrastructure()) {
+            if (network == null) {
+                return 0;
+            }
+            for (AcceleratorNetwork.Component component : network.components) {
+                if (!component.pos.equals(pos)) {
+                    continue;
+                }
+                if (!component.present) {
+                    return 0;
+                }
+                return component.correctKind && component.correctOrientation ? 2 : 1;
+            }
+            return 0;
+        }
+        if (slot.kind != null) {
+            // service ring component
+            if (state.getBlock() instanceof com.particlephysics.block.MachineBlock machine) {
+                return machine.kind() == slot.kind ? 2 : 1;
+            }
+            return 0;
+        }
+        net.minecraft.block.Block expected = shieldingBlock(slot.materialKey);
+        if (state.isAir()) {
+            return 0;
+        }
+        return state.isOf(expected) ? 2 : 1;
     }
 
     private static String displayName(String key) {
@@ -218,6 +282,10 @@ public final class BlueprintActions {
             case "mode" -> ui.mode = (int) data.getInt("value");
             case "cycle" -> ui.cycle = Math.max(0, data.getInt("value"));
             case "layer" -> ui.layer = Math.max(0, data.getInt("value"));
+            case "all" -> {
+                ui.showAll = !ui.showAll;
+                ui.cycle = 0;
+            }
             case "kind" -> {
                 AcceleratorDesign.Kind kind = "LINAC".equals(data.getString("value"))
                         ? AcceleratorDesign.Kind.LINAC : AcceleratorDesign.Kind.RING;

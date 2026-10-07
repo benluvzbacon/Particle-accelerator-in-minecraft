@@ -48,7 +48,7 @@ public class DetectorScreen extends ModScreen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackground(context, mouseX, mouseY, delta);
+        drawBackgroundOnce(context, mouseX, mouseY, delta);
         NbtCompound data = ClientState.detector;
         if (data == null) {
             text(context, "No detector connected", 10, 40, WARN);

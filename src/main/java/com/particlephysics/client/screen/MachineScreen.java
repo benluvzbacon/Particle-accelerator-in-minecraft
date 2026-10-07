@@ -89,7 +89,7 @@ public class MachineScreen extends ModScreen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackground(context, mouseX, mouseY, delta);
+        drawBackgroundOnce(context, mouseX, mouseY, delta);
         NbtCompound data = ClientState.machine;
         panel(context, 8, 22, width - 16, height - 56);
         if (data == null) {

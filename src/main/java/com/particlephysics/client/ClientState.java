@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 
 /**
@@ -20,6 +21,10 @@ public final class ClientState {
     public static NbtCompound journal;
     public static final List<String> messages = new ArrayList<>();
     public static long lastUpdateMillis;
+
+    /** Name and distance of the closest block the blueprint still wants, computed while rendering. */
+    public static String nearestGhostName = "";
+    public static double nearestGhostDistance = -1.0;
 
     private ClientState() {
     }
@@ -61,6 +66,19 @@ public final class ClientState {
         NbtList nbtList = parent.getList(key, NbtCompound.COMPOUND_TYPE);
         for (int i = 0; i < nbtList.size(); i++) {
             list.add(nbtList.getCompound(i));
+        }
+        return list;
+    }
+
+    /** Reads a list of strings (used for the block each ghost wants). */
+    public static List<String> strings(NbtCompound parent, String key) {
+        List<String> list = new ArrayList<>();
+        if (parent == null) {
+            return list;
+        }
+        NbtList nbtList = parent.getList(key, NbtElement.STRING_TYPE);
+        for (int i = 0; i < nbtList.size(); i++) {
+            list.add(nbtList.getString(i));
         }
         return list;
     }
