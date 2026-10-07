@@ -152,7 +152,9 @@ public final class QuestActions {
         }
         switch (key) {
             case "computer" -> {
-                return count(network, MachineKind.CONTROL_COMPUTER);
+                // the control computer is infrastructure: it lives on the design's service ring
+                return network.placedMaterials.getOrDefault("control_computer", 0)
+                        + count(network, MachineKind.CONTROL_COMPUTER);
             }
             case "magnets" -> {
                 return count(network, MachineKind.DIPOLE_MAGNET)
