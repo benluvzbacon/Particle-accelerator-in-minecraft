@@ -245,9 +245,10 @@ public final class AcceleratorCommand {
             source.sendError(Text.literal("Unknown or uncharged species: " + name));
             return 0;
         }
-        network.site.sourceSpecies = species.name();
-        network.beam.species = species;
-        source.sendFeedback(() -> Text.literal("Source set to " + species.displayName()), false);
+        com.particlephysics.physics.ParticleSpecies chosen = species;
+        network.site.sourceSpecies = chosen.name();
+        network.beam.species = chosen;
+        source.sendFeedback(() -> Text.literal("Source set to " + chosen.displayName()), false);
         return 1;
     }
 
