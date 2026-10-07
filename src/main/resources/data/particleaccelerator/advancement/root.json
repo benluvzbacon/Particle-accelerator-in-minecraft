@@ -1,0 +1,24 @@
+{
+  "display": {
+    "icon": {
+      "id": "particleaccelerator:blueprint"
+    },
+    "title": {
+      "translate": "Particle Accelerator"
+    },
+    "description": {
+      "translate": "Craft the accelerator blueprint"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "craft": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "particleaccelerator:blueprint"
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "display": {
+    "icon": {
+      "id": "particleaccelerator:rf_cavity"
+    },
+    "title": {
+      "translate": "Give it Energy"
+    },
+    "description": {
+      "translate": "Craft an RF cavity"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "cavity": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "particleaccelerator:rf_cavity"
+      }
+    }
+  },
+  "parent": "particleaccelerator:magnet"
+}

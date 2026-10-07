@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CWC",
+    "III",
+    "CWC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:coil_wire"
+    },
+    "W": {
+      "item": "particleaccelerator:machine_casing"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:dipole_magnet",
+    "count": 1
+  }
+}

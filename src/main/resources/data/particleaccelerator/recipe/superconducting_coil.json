@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CNC",
+    "NIN",
+    "CNC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:coil_wire"
+    },
+    "N": {
+      "item": "minecraft:netherite_scrap"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:superconducting_coil",
+    "count": 1
+  }
+}

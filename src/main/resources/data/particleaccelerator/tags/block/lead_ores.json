@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "particleaccelerator:lead_ore",
+    "particleaccelerator:deepslate_lead_ore"
+  ]
+}

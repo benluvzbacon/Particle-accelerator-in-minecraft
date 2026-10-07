@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "particleaccelerator:block/cooling_unit"
+    },
+    "facing=east": {
+      "model": "particleaccelerator:block/cooling_unit",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "particleaccelerator:block/cooling_unit",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "particleaccelerator:block/cooling_unit",
+      "y": 270
+    }
+  }
+}

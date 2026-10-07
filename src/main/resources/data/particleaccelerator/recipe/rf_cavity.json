@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CSC",
+    "SWS",
+    "CSC"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_block"
+    },
+    "S": {
+      "item": "particleaccelerator:superconducting_coil"
+    },
+    "W": {
+      "item": "particleaccelerator:cryostat_wall"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:rf_cavity",
+    "count": 1
+  }
+}

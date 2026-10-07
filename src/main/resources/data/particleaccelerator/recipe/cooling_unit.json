@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CIC",
+    "IPI",
+    "CIC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:machine_casing"
+    },
+    "I": {
+      "item": "minecraft:ice"
+    },
+    "P": {
+      "item": "minecraft:piston"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:cooling_unit",
+    "count": 1
+  }
+}

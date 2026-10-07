@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LL",
+    "LL"
+  ],
+  "key": {
+    "L": {
+      "item": "particleaccelerator:lead_ingot"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:machine_casing",
+    "count": 4
+  }
+}

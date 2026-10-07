@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CC",
+    "CC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:machine_casing"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:cryostat_wall",
+    "count": 4
+  }
+}

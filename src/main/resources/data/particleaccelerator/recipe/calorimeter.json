@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CLC",
+    "LSL",
+    "CLC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:machine_casing"
+    },
+    "L": {
+      "item": "particleaccelerator:lead_block"
+    },
+    "S": {
+      "item": "particleaccelerator:photodetector"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:calorimeter",
+    "count": 1
+  }
+}

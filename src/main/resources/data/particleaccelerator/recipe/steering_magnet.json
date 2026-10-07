@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CIC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:coil_wire"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:steering_magnet",
+    "count": 1
+  }
+}

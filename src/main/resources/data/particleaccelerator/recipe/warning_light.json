@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "particleaccelerator:machine_casing"
+    },
+    {
+      "item": "minecraft:redstone_lamp"
+    },
+    {
+      "item": "particleaccelerator:coil_wire"
+    }
+  ],
+  "result": {
+    "id": "particleaccelerator:warning_light",
+    "count": 1
+  }
+}

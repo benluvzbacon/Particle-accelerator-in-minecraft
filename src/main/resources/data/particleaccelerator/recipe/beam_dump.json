@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LLL",
+    "LCL",
+    "LLL"
+  ],
+  "key": {
+    "L": {
+      "item": "particleaccelerator:lead_block"
+    },
+    "C": {
+      "item": "particleaccelerator:machine_casing"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:beam_dump",
+    "count": 1
+  }
+}

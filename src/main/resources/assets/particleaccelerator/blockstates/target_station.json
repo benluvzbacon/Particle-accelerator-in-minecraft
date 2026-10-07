@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "particleaccelerator:block/target_station"
+    },
+    "axis=z": {
+      "model": "particleaccelerator:block/target_station",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "particleaccelerator:block/target_station",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

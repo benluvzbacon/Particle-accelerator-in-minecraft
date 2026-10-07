@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "particleaccelerator:block/superconducting_dipole"
+    },
+    "axis=z": {
+      "model": "particleaccelerator:block/superconducting_dipole",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "particleaccelerator:block/superconducting_dipole",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

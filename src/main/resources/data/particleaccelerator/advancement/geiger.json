@@ -1,0 +1,25 @@
+{
+  "display": {
+    "icon": {
+      "id": "particleaccelerator:geiger_counter"
+    },
+    "title": {
+      "translate": "Safety First"
+    },
+    "description": {
+      "translate": "Craft a radiation meter"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "geiger": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "particleaccelerator:geiger_counter"
+      }
+    }
+  },
+  "parent": "particleaccelerator:lead"
+}

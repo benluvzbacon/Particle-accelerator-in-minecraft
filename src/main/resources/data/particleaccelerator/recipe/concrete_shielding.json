@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CC",
+    "CC"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:white_concrete"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:concrete_shielding",
+    "count": 4
+  }
+}

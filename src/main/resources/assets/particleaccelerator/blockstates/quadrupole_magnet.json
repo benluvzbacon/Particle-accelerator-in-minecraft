@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "particleaccelerator:block/quadrupole_magnet"
+    },
+    "axis=z": {
+      "model": "particleaccelerator:block/quadrupole_magnet",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "particleaccelerator:block/quadrupole_magnet",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

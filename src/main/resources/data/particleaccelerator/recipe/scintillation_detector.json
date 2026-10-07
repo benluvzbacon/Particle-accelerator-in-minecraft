@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CBC",
+    "BGB",
+    "CBC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:machine_casing"
+    },
+    "B": {
+      "item": "particleaccelerator:beam_pipe"
+    },
+    "G": {
+      "item": "minecraft:glowstone"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:scintillation_detector",
+    "count": 1
+  }
+}

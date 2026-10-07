@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "particleaccelerator:block/vacuum_pump"
+    }
+  }
+}

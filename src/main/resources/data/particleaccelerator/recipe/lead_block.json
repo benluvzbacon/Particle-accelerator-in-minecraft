@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LLL",
+    "LLL",
+    "LLL"
+  ],
+  "key": {
+    "L": {
+      "item": "particleaccelerator:lead_ingot"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:lead_block",
+    "count": 1
+  }
+}

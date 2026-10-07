@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "particleaccelerator:circuit_board"
+    },
+    {
+      "item": "particleaccelerator:photodetector"
+    },
+    {
+      "item": "particleaccelerator:machine_casing"
+    }
+  ],
+  "result": {
+    "id": "particleaccelerator:geiger_counter",
+    "count": 1
+  }
+}

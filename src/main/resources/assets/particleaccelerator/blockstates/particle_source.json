@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "particleaccelerator:block/particle_source"
+    }
+  }
+}

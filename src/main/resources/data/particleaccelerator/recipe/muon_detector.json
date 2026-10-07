@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CBC",
+    "BSB",
+    "CBC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:machine_casing"
+    },
+    "B": {
+      "item": "particleaccelerator:beam_pipe"
+    },
+    "S": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:muon_detector",
+    "count": 1
+  }
+}

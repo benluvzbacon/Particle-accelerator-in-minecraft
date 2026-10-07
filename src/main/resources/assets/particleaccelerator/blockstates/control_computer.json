@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "particleaccelerator:block/control_computer"
+    },
+    "facing=east": {
+      "model": "particleaccelerator:block/control_computer",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "particleaccelerator:block/control_computer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "particleaccelerator:block/control_computer",
+      "y": 270
+    }
+  }
+}

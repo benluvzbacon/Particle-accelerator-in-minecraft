@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "particleaccelerator:block/warning_light"
+    },
+    "lit=true": {
+      "model": "particleaccelerator:block/warning_light_lit"
+    }
+  }
+}

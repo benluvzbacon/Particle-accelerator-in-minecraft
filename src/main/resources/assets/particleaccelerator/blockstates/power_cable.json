@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "particleaccelerator:block/power_cable"
+    },
+    "axis=z": {
+      "model": "particleaccelerator:block/power_cable",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "particleaccelerator:block/power_cable",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

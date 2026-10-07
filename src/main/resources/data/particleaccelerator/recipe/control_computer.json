@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CSC",
+    "SMS",
+    "CPC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:machine_casing"
+    },
+    "S": {
+      "item": "particleaccelerator:circuit_board"
+    },
+    "M": {
+      "item": "particleaccelerator:beam_monitor"
+    },
+    "P": {
+      "item": "particleaccelerator:power_cable"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:control_computer",
+    "count": 1
+  }
+}

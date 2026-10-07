@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "particleaccelerator:block/collision_chamber"
+    },
+    "axis=z": {
+      "model": "particleaccelerator:block/collision_chamber",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "particleaccelerator:block/collision_chamber",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

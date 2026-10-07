@@ -1,0 +1,25 @@
+{
+  "display": {
+    "icon": {
+      "id": "particleaccelerator:dipole_magnet"
+    },
+    "title": {
+      "translate": "Bend the Beam"
+    },
+    "description": {
+      "translate": "Craft a dipole magnet"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "magnet": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "particleaccelerator:dipole_magnet"
+      }
+    }
+  },
+  "parent": "particleaccelerator:lead"
+}

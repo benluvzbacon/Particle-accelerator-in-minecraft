@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "particleaccelerator:block/injector"
+    },
+    "axis=z": {
+      "model": "particleaccelerator:block/injector",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "particleaccelerator:block/injector",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

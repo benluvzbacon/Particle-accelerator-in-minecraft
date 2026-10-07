@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "particleaccelerator:machine_casing"
+    },
+    {
+      "item": "minecraft:glass"
+    },
+    {
+      "item": "particleaccelerator:circuit_board"
+    }
+  ],
+  "result": {
+    "id": "particleaccelerator:vacuum_gauge",
+    "count": 1
+  }
+}

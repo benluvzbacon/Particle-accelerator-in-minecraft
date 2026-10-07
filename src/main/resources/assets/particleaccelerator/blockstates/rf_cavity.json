@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "particleaccelerator:block/rf_cavity"
+    },
+    "axis=z": {
+      "model": "particleaccelerator:block/rf_cavity",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "particleaccelerator:block/rf_cavity",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

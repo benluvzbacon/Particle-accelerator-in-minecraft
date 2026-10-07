@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "particleaccelerator:lead_ore"
+  },
+  "result": {
+    "id": "particleaccelerator:lead_ingot"
+  },
+  "experience": 0.7,
+  "cookingtime": 200
+}

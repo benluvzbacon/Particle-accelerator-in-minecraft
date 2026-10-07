@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SC",
+    "CS"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:glass"
+    },
+    "C": {
+      "item": "particleaccelerator:coil_wire"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:photodetector",
+    "count": 2
+  }
+}

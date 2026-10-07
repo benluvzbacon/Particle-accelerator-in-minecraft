@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CIC",
+    "IWI",
+    "CIC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:coil_wire"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "W": {
+      "item": "particleaccelerator:machine_casing"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:quadrupole_magnet",
+    "count": 1
+  }
+}

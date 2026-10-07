@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "particleaccelerator:block/dipole_magnet"
+    },
+    "axis=z": {
+      "model": "particleaccelerator:block/dipole_magnet",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "particleaccelerator:block/dipole_magnet",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

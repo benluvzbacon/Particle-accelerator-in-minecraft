@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "particleaccelerator:block/beam_monitor"
+    },
+    "axis=z": {
+      "model": "particleaccelerator:block/beam_monitor",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "particleaccelerator:block/beam_monitor",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

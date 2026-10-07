@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CPC",
+    "PMP",
+    "CPC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:machine_casing"
+    },
+    "P": {
+      "item": "minecraft:piston"
+    },
+    "M": {
+      "item": "particleaccelerator:coil_wire"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:vacuum_pump",
+    "count": 1
+  }
+}

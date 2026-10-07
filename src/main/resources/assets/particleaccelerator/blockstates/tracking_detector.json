@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "particleaccelerator:block/tracking_detector"
+    },
+    "axis=z": {
+      "model": "particleaccelerator:block/tracking_detector",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "particleaccelerator:block/tracking_detector",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

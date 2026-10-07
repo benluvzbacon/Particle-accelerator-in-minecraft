@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LL",
+    "LL"
+  ],
+  "key": {
+    "L": {
+      "item": "particleaccelerator:lead_block"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:lead_shielding",
+    "count": 4
+  }
+}

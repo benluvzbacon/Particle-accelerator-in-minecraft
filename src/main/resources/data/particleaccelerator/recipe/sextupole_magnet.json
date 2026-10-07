@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CIC",
+    "IWI",
+    "CIC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:coil_wire"
+    },
+    "I": {
+      "item": "particleaccelerator:superconducting_coil"
+    },
+    "W": {
+      "item": "particleaccelerator:machine_casing"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:sextupole_magnet",
+    "count": 1
+  }
+}

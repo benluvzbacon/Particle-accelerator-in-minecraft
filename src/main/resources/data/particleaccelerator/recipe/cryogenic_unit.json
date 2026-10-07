@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CBC",
+    "BWB",
+    "CBC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:cryostat_wall"
+    },
+    "B": {
+      "item": "minecraft:blue_ice"
+    },
+    "W": {
+      "item": "particleaccelerator:superconducting_coil"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:cryogenic_unit",
+    "count": 1
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CSC",
+    "IWI",
+    "CSC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:superconducting_coil"
+    },
+    "S": {
+      "item": "particleaccelerator:machine_casing"
+    },
+    "I": {
+      "item": "minecraft:netherite_block"
+    },
+    "W": {
+      "item": "particleaccelerator:cryostat_wall"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:superconducting_dipole",
+    "count": 1
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:coil_wire"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:power_cable",
+    "count": 4
+  }
+}

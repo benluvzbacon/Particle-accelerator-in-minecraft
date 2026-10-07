@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CPC"
+  ],
+  "key": {
+    "C": {
+      "item": "particleaccelerator:machine_casing"
+    },
+    "P": {
+      "item": "particleaccelerator:beam_pipe"
+    }
+  },
+  "result": {
+    "id": "particleaccelerator:vacuum_valve",
+    "count": 1
+  }
+}

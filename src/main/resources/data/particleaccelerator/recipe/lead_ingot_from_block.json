@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "particleaccelerator:lead_block"
+    }
+  ],
+  "result": {
+    "id": "particleaccelerator:lead_ingot",
+    "count": 9
+  }
+}

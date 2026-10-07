@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "id": "particleaccelerator:lead_ingot"
+    },
+    "title": {
+      "translate": "Heavy Metal"
+    },
+    "description": {
+      "translate": "Smelt lead, the shielding material"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "particleaccelerator:lead_ingot"
+          }
+        ]
+      }
+    }
+  },
+  "parent": "particleaccelerator:root"
+}
