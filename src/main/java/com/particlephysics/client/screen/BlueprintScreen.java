@@ -39,8 +39,8 @@ public class BlueprintScreen extends ModScreen {
             final int index = i;
             button(MODES[i], left + i * 78, 22, 76, 18, () -> {
                 mode = index;
-                send("blueprint", null, null, 0);
                 NbtCompound nbt = new NbtCompound();
+                nbt.putString("route", "blueprint");
                 nbt.putString("action", "mode");
                 nbt.putInt("value", index);
                 com.particlephysics.net.ModNetworking.sendAction(nbt);
@@ -49,11 +49,13 @@ public class BlueprintScreen extends ModScreen {
         boolean deployed = data != null && data.getBoolean("deployed");
         button(deployed ? "Remove blueprint" : "Deploy blueprint", left, bottom, 130, 20, () -> {
             NbtCompound nbt = new NbtCompound();
+            nbt.putString("route", "blueprint");
             nbt.putString("action", deployed ? "forget" : "deploy");
             com.particlephysics.net.ModNetworking.sendAction(nbt);
         });
         button("Ring / Linac", left + 136, bottom, 90, 20, () -> {
             NbtCompound nbt = new NbtCompound();
+            nbt.putString("route", "blueprint");
             nbt.putString("action", "kind");
             nbt.putString("value", data != null && "LINAC".equals(data.getString("kind"))
                     ? "RING" : "LINAC");
@@ -77,6 +79,7 @@ public class BlueprintScreen extends ModScreen {
         NbtCompound data = ClientState.blueprint;
         int current = data == null ? 0 : data.getInt(key);
         NbtCompound nbt = new NbtCompound();
+        nbt.putString("route", "blueprint");
         nbt.putString("action", key);
         nbt.putInt("value", current + delta);
         com.particlephysics.net.ModNetworking.sendAction(nbt);

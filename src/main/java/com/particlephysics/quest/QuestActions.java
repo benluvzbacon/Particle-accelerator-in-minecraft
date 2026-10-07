@@ -34,6 +34,9 @@ public final class QuestActions {
 
     public static void handle(ServerPlayerEntity player, NbtCompound data) {
         String act = data.getString("act");
+        if (act.isEmpty()) {
+            act = data.getString("action");
+        }
         if ("chapter".equals(act)) {
             CHAPTER.put(player.getUuid(), data.getInt("value"));
         }

@@ -43,8 +43,8 @@ public class JournalScreen extends ModScreen {
 
     private void sendChapter(int index) {
         NbtCompound nbt = new NbtCompound();
-        nbt.putString("action", "quests");
-        nbt.putString("act", "chapter");
+        nbt.putString("route", "quests");
+        nbt.putString("action", "chapter");
         nbt.putInt("value", index);
         com.particlephysics.net.ModNetworking.sendAction(nbt);
     }

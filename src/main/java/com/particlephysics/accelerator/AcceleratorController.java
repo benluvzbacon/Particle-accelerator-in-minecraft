@@ -589,7 +589,15 @@ public final class AcceleratorController {
             case "intensity" -> site.injectionIntensity =
                     10.0 * Math.pow(10.0, clamp(d.getDouble("value"), 4.0, 12.0) - 1.0);
             case "detectors" -> {
-                // ask the detectors to report in, no state change
+                if (network.detectors.isEmpty()) {
+                    ModNetworking.sendMessage(player,
+                            "No detector is built into this machine yet", true);
+                } else {
+                    AcceleratorNetwork.DetectorReading reading = network.detectors.get(0);
+                    ModNetworking.send(player, detectorStateNbt(network, reading));
+                    ModState.sites().markDirty();
+                    return;
+                }
             }
             default -> {
                 // unknown action, ignored

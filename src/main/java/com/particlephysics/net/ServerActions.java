@@ -21,7 +21,12 @@ public final class ServerActions {
         if (data == null || data.isEmpty()) {
             return;
         }
-        String action = data.getString("action");
+        // Screens that have their own sub-actions send an explicit route, everything else is
+        // routed by the action itself.
+        String action = data.getString("route");
+        if (action.isEmpty()) {
+            action = data.getString("action");
+        }
         switch (action) {
             case "open" -> open(player, data);
             case "machine" -> machine(player, data);
