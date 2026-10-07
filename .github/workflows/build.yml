@@ -17,11 +17,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      # The mod is compiled for Java 21 (Minecraft 1.21.1 target), but the current
+      # Fabric Loom snapshot needs a Java 25 runtime for Gradle itself.
+      - name: Set up JDK 21 (mod target)
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: Set up JDK 25 (Gradle runtime)
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4

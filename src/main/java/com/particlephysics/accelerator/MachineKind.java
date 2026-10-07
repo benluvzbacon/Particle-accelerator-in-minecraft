@@ -48,13 +48,13 @@ public enum MachineKind {
     // --- infrastructure ----------------------------------------------------------------------
     CONTROL_COMPUTER("control_computer", "Control Computer", System.CONTROL, Orientation.FACING,
             0.0),
-    POWER_SUPPLY("power_supply", "Power Supply", System.POWER, Orientation.FACING, 2.0),
-    POWER_CABLE("power_cable", "Power Cable", System.POWER, Orientation.AXIS, 1.0),
-    COOLING_UNIT("cooling_unit", "Cooling Unit", System.COOLING, Orientation.FACING, 12.0),
-    CRYOGENIC_UNIT("cryogenic_unit", "Cryogenic Unit", System.CRYO, Orientation.FACING, 40.0),
+    POWER_SUPPLY("power_supply", "Power Supply", System.POWER, Orientation.FACING, 250.0),
+    POWER_CABLE("power_cable", "Power Cable", System.POWER, Orientation.AXIS, 150.0),
+    COOLING_UNIT("cooling_unit", "Cooling Unit", System.COOLING, Orientation.FACING, 80.0),
+    CRYOGENIC_UNIT("cryogenic_unit", "Cryogenic Unit", System.CRYO, Orientation.FACING, 300.0),
     TARGET_STATION("target_station", "Target Station", System.BEAMLINE, Orientation.AXIS, 0.0),
     DECAY_CHAMBER("decay_chamber", "Decay Chamber", System.BEAMLINE, Orientation.NONE, 0.0),
-    WARNING_LIGHT("warning_light", "Radiation Warning Light", System.CONTROL, Orientation.NONE, 0.2);
+    WARNING_LIGHT("warning_light", "Radiation Warning Light", System.CONTROL, Orientation.NONE, 0.05);
 
     /** Subsystem a component belongs to; used by the systems view of the blueprint. */
     public enum System {
