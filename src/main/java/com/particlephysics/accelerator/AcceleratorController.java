@@ -318,10 +318,11 @@ public final class AcceleratorController {
         nbt.putDouble("pumpSpeed", network.pumpSpeedM3S);
         nbt.putBoolean("valveOpen", network.site.valveOpen);
         nbt.putBoolean("vacuumFault", network.machine.vacuumFault);
-        nbt.putDouble("gasLifetime", Double.isInfinite(network.beam.lifetime) ? -1.0
-                : Vacuum.beamLifetime(network.vacuumPressurePa,
-                        Vacuum.gasCrossSection(network.beam.energy, network.beam.species.mass(),
-                                7, 14), network.beam.beta()));
+        double gasSigma = Vacuum.gasCrossSection(network.beam.energy,
+                network.beam.species.mass(), Math.abs(network.beam.species.charge()),
+                7.0, 14.0);
+        nbt.putDouble("gasLifetime", Vacuum.beamLifetime(network.vacuumPressurePa, gasSigma,
+                network.beam.beta()));
 
         // power, cooling, cryogenics
         nbt.putDouble("powerSupply", network.powerSupplyKW);

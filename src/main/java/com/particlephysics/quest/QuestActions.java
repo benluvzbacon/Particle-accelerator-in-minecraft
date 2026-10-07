@@ -163,9 +163,9 @@ public final class QuestActions {
             }
             case "shielding" -> {
                 int shielding = 0;
-                for (String key : new String[]{"concrete_shielding", "lead_shielding",
+                for (String material : new String[]{"concrete_shielding", "lead_shielding",
                         "lead_block", "water_shielding", "borated_polyethylene"}) {
-                    shielding += network.placedMaterials.getOrDefault(key, 0);
+                    shielding += network.placedMaterials.getOrDefault(material, 0);
                 }
                 return shielding;
             }

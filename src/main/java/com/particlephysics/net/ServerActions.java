@@ -4,6 +4,7 @@ import com.particlephysics.accelerator.AcceleratorController;
 import com.particlephysics.accelerator.BlueprintActions;
 import com.particlephysics.quest.QuestActions;
 
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 

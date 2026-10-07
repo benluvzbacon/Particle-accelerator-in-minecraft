@@ -40,7 +40,6 @@ public class ParticleAcceleratorMod implements ModInitializer {
 
         ModNetworking.registerPayloads();
         ModNetworking.registerServerReceiver();
-        AcceleratorController.register();
 
         ServerLifecycleEvents.SERVER_STARTED.register(ModState::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPING.register(ModState::onServerStopping);

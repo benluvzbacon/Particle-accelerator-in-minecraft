@@ -1012,9 +1012,10 @@ public final class AcceleratorNetwork {
         return site.origin();
     }
 
-    private Vec3 centerVec() {
+    private net.minecraft.util.math.Vec3d centerVec() {
         BlockPos pos = eventPosition();
-        return new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+        return new net.minecraft.util.math.Vec3d(pos.getX() + 0.5, pos.getY() + 0.5,
+                pos.getZ() + 0.5);
     }
 
     // ------------------------------------------------------------------------------------------

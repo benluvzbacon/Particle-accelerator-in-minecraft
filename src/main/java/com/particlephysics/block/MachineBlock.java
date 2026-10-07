@@ -59,7 +59,7 @@ public abstract class MachineBlock extends Block implements net.minecraft.block.
     }
 
     @Override
-    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         BlockEntity be = world.getBlockEntity(pos);
         if (be instanceof AbstractMachineBlockEntity machine && !world.isClient) {
             for (int i = 0; i < machine.size(); i++) {
@@ -71,7 +71,7 @@ public abstract class MachineBlock extends Block implements net.minecraft.block.
                 }
             }
         }
-        super.onBreak(world, pos, state, player);
+        return super.onBreak(world, pos, state, player);
     }
 
     @Override
