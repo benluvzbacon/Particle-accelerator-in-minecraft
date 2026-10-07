@@ -1,0 +1,95 @@
+plugins {
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	id 'maven-publish'
+}
+
+repositories {
+	// Loom adds the Minecraft/Fabric repositories automatically.
+}
+
+base {
+	archivesName = project.archives_base_name
+}
+
+dependencies {
+	// Minecraft 1.21.1 (Yarn mappings) -- see gradle.properties
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+	it.options.encoding = "UTF-8"
+	// Show every compilation error in one CI run instead of stopping after 100.
+	it.options.compilerArgs += ["-Xmaxerrs", "2000", "-Xlint:none"]
+}
+
+java {
+	// Keep the plain jar and add a sources jar to the build output.
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+	def projectName = project.name
+	inputs.property "projectName", projectName
+
+	from("LICENSE") {
+		rename { "${it}_$projectName" }
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Development helpers
+// ---------------------------------------------------------------------------
+
+// Fail fast (and clearly) if a generated resource file is not valid JSON.
+tasks.register('validateResources') {
+	group = 'verification'
+	description = 'Validates every JSON resource in src/main/resources'
+	doLast {
+		def root = file('src/main/resources')
+		int checked = 0
+		def broken = []
+		root.eachFileRecurse { f ->
+			if (f.isFile() && f.name.endsWith('.json')) {
+				checked++
+				try {
+					new groovy.json.JsonSlurper().parseText(f.text)
+				} catch (Exception e) {
+					broken << "${f}: ${e.message}"
+				}
+			}
+		}
+		if (!broken.isEmpty()) {
+			throw new GradleException("Invalid JSON resources:\n" + broken.join("\n"))
+		}
+		logger.lifecycle("Validated ${checked} JSON resource files")
+	}
+}
+
+check.dependsOn validateResources
+
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			from components.java
+		}
+	}
+	repositories {
+	}
+}
