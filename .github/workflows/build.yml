@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -59,13 +59,27 @@ jobs:
           tail -5 validate.log
 
       - name: Build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set +e
           ./gradlew build --stacktrace --no-daemon > build.log 2>&1
           status=$?
           if [ $status -ne 0 ]; then
-            echo "::error title=Build failed::$(grep -E 'error:|error \[|FAILURE|Execution failed|Could not resolve|Caused by' build.log | head -30 | tr '\n' '|' | sed 's/%/%25/g' | cut -c1-6000)"
-            grep -E 'error:|error \[|FAILURE|Execution failed|Caused by|Could not' build.log | head -60
+            {
+              echo "### Java errors"
+              echo '```'
+              grep -E "\.java:[0-9]+: (error|warning):" build.log | sed "s|$PWD/||" | head -80
+              echo '```'
+              echo "### Failure"
+              echo '```'
+              grep -A12 "What went wrong" build.log | head -25
+              grep -E "Caused by" build.log | head -8
+              echo '```'
+            } > errors.md
+            gh api -X POST "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" \
+              -f body="$(head -c 60000 errors.md)" > /dev/null || true
+            cat errors.md
             exit $status
           fi
           tail -20 build.log
