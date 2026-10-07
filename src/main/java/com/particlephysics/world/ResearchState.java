@@ -86,6 +86,19 @@ public class ResearchState extends PersistentStore {
 
     /** Everything known about one player. */
     public static final class PlayerResearch {
+        /** Back reference so that changes mark the surrounding store dirty. */
+        private transient ResearchState owner;
+
+        void attach(ResearchState state) {
+            this.owner = state;
+        }
+
+        private void markDirty() {
+            if (owner != null) {
+                owner.markDirty();
+            }
+        }
+
         /** Bit set of the 118 elements (element Z-1 bit). */
         public int[] discoveredElements = new int[4];
         /** Discovered nuclides encoded as z * 1000 + a. */
@@ -201,7 +214,9 @@ public class ResearchState extends PersistentStore {
     public PlayerResearch forPlayer(UUID uuid) {
         return players.computeIfAbsent(uuid, id -> {
             markDirty();
-            return new PlayerResearch();
+            PlayerResearch research = new PlayerResearch();
+            research.attach(this);
+            return research;
         });
     }
 
@@ -270,6 +285,7 @@ public class ResearchState extends PersistentStore {
                 UUID uuid = UUID.fromString(key);
                 NbtCompound nbt = root.getCompound(key);
                 PlayerResearch research = new PlayerResearch();
+                research.attach(this);
                 int[] elements = nbt.getIntArray("elements");
                 if (elements.length == 4) {
                     research.discoveredElements = elements;
