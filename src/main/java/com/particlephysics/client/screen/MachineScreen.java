@@ -92,33 +92,37 @@ public class MachineScreen extends ModScreen {
         drawBackgroundOnce(context, mouseX, mouseY, delta);
         NbtCompound data = ClientState.machine;
         panel(context, 8, 22, width - 16, height - 56);
+        contentTop = 40;
+        beginContent(context);
         if (data == null) {
-            text(context, "No machine selected", 14, 30, WARN);
+            text(context, "No machine selected", 14, contentTop + 2, WARN);
+            endContent(context);
             super.render(context, mouseX, mouseY, delta);
             return;
         }
         MachineKind kind = MachineKind.byId(data.getString("kind"));
-        text(context, data.getString("title"), 14, 26, 0x7FD8FF);
-        int y = 42;
+        int y = contentTop + 2;
+        textClipped(context, data.getString("title"), 14, y, width - 28, ACCENT);
+        y += 13;
         if (kind != null) {
             text(context, "System: " + kind.system().displayName(), 14, y, DIM);
-            y += 11;
+            y += TEXT_STEP;
             text(context, "Nominal capability: " + String.format("%.3g", kind.capacity()) + " "
                     + capabilityUnit(kind), 14, y, DIM);
             y += 13;
         }
         row(context, "State", data.getBoolean("active") ? "active" : "idle", 14, y, width - 28,
                 data.getBoolean("active") ? GOOD : DIM);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Stored level", String.format("%.3f", data.getDouble("level")), 14, y,
                 width - 28, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Measured", String.format("%.4g", data.getDouble("measured")), 14, y,
                 width - 28, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Setpoint", String.format("%.4g / %.4g", data.getDouble("setpointA"),
                 data.getDouble("setpointB")), 14, y, width - 28, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Temperature", String.format("%.1f C", data.getDouble("temperature")), 14, y,
                 width - 28, data.getDouble("temperature") > 45.0 ? BAD : TEXT);
         y += 13;
@@ -129,37 +133,40 @@ public class MachineScreen extends ModScreen {
             y += 13;
             row(context, "Beam", UnitFormat.energy(data.getDouble("energy")), 14, y, width - 28,
                     TEXT);
-            y += 11;
+            y += TEXT_STEP;
             row(context, "Beam current", UnitFormat.current(data.getDouble("current")), 14, y,
                     width - 28, TEXT);
-            y += 11;
+            y += TEXT_STEP;
             row(context, "Vacuum", UnitFormat.pressure(data.getDouble("vacuum")), 14, y,
                     width - 28, TEXT);
-            y += 11;
+            y += TEXT_STEP;
             row(context, "RF", String.format("%.4f MV @ %.6f MHz", data.getDouble("rfv"),
                     data.getDouble("rff")), 14, y, width - 28, TEXT);
-            y += 11;
+            y += TEXT_STEP;
             row(context, "Synchronous freq.", String.format("%.6f MHz", data.getDouble("rfRequired")),
                     14, y, width - 28, DIM);
-            y += 11;
+            y += TEXT_STEP;
             row(context, "Dipole field", String.format("%.4f T", data.getDouble("field")), 14, y,
                     width - 28, TEXT);
-            y += 11;
+            y += TEXT_STEP;
             row(context, "Dose rate here", UnitFormat.dose(data.getDouble("dose")), 14, y,
                     width - 28, data.getDouble("dose") > 10.0 ? BAD : TEXT);
-            y += 11;
+            y += TEXT_STEP;
             if (!data.getString("failure").isEmpty()) {
-                text(context, "Fault: " + data.getString("failure"), 14, y, BAD);
-                y += 11;
+                textClipped(context, "Fault: " + data.getString("failure"), 14, y, width - 28, BAD);
+                y += TEXT_STEP;
             }
         }
         y += 6;
         text(context, "Contents", 14, y, 0x7FD8FF);
-        y += 12;
+        y += TEXT_STEP;
         for (NbtCompound item : ClientState.compounds(data, "items")) {
-            text(context, item.getString("name") + " x" + item.getInt("count"), 14, y, TEXT);
-            y += 11;
+            textClipped(context, item.getString("name") + " x" + item.getInt("count"), 14, y,
+                    width - 28, TEXT);
+            y += TEXT_STEP;
         }
+        contentHeight = y - contentTop;
+        endContent(context);
         super.render(context, mouseX, mouseY, delta);
     }
 

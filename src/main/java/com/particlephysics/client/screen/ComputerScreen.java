@@ -139,28 +139,28 @@ public class ComputerScreen extends ModScreen {
                 + data.getString("species"), y);
         row(context, "Energy", UnitFormat.energy(data.getDouble("energy")), 14, y, leftWidth - 12,
                 TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Target energy", UnitFormat.energy(data.getDouble("targetEnergy")), 14, y,
                 leftWidth - 12, DIM);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Momentum", String.format("%.4g MeV/c", data.getDouble("momentum")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Current", UnitFormat.current(data.getDouble("current")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Particles", String.format("%.3g", data.getDouble("intensity")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "beta / gamma", String.format("%.6f / %.3f", data.getDouble("beta"),
                 data.getDouble("gamma")), 14, y, leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Beam lifetime", UnitFormat.time(data.getDouble("lifetime")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Loss per step", String.format("%.3e", data.getDouble("lossFraction")), 14,
                 y, leftWidth - 12, data.getDouble("lossFraction") > 1.0e-3 ? BAD : TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Peak energy reached", UnitFormat.energy(data.getDouble("peakEnergy")), 14,
                 y, leftWidth - 12, GOOD);
         y += 13;
@@ -168,40 +168,40 @@ public class ComputerScreen extends ModScreen {
         y = section(context, "Magnets", y);
         row(context, "Dipole field", String.format("%.4f T", data.getDouble("field")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Field required", String.format("%.4f T", data.getDouble("fieldRequired")),
                 14, y, leftWidth - 12,
                 Math.abs(data.getDouble("field") - data.getDouble("fieldRequired")) > 1.0e-3
                         ? WARN : GOOD);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Orbit distortion", String.format("%.2f mm", data.getDouble("orbit")), 14, y,
                 leftWidth - 12, Math.abs(data.getDouble("orbit")) > 20.0 ? BAD : TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Quad / sext scale", String.format("%.3f / %.3f", data.getDouble("quad"),
                 data.getDouble("sext")), 14, y, leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Steering trim", String.format("%.3f deg", data.getDouble("steering")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Magnets", data.getBoolean("superconducting") ? "superconducting"
                 : "resistive", 14, y, leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         if (data.getBoolean("quench")) {
             text(context, "QUENCH: magnets lost superconductivity", 14, y, BAD);
-            y += 11;
+            y += TEXT_STEP;
         }
         y += 2;
 
         y = section(context, "Radio frequency", y);
         row(context, "Cavity voltage", String.format("%.4f MV", data.getDouble("rfv")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Frequency", String.format("%.6f MHz", data.getDouble("rff")), 14, y,
                 leftWidth - 12, data.getBoolean("rfFault") ? BAD : TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Synchronous freq.", String.format("%.6f MHz", data.getDouble("rfRequired")),
                 14, y, leftWidth - 12, DIM);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Phase", String.format("%.1f deg", data.getDouble("rfPhase")), 14, y,
                 leftWidth - 12, TEXT);
         y += 13;
@@ -209,23 +209,23 @@ public class ComputerScreen extends ModScreen {
         y = section(context, "Vacuum, power and cryogenics", y);
         row(context, "Pressure", UnitFormat.pressure(data.getDouble("vacuum")), 14, y,
                 leftWidth - 12, data.getBoolean("vacuumFault") ? WARN : GOOD);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Pumping speed", String.format("%.2f m3/s", data.getDouble("pumpSpeed")), 14,
                 y, leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Gas lifetime", UnitFormat.time(data.getDouble("gasLifetime")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Power", UnitFormat.power(data.getDouble("powerSupply")) + " / "
                 + UnitFormat.power(data.getDouble("powerDemand")), 14, y, leftWidth - 12,
                 data.getDouble("powerSupply") < data.getDouble("powerDemand") ? BAD : GOOD);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Magnet temperature", String.format("%.1f C", data.getDouble("temperature")),
                 14, y, leftWidth - 12, data.getDouble("temperature") > 45.0 ? BAD : TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Cooling capacity", UnitFormat.power(data.getDouble("coolant")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Cryostat", String.format("%.1f K", data.getDouble("cryoTemperature")) + "  ("
                 + String.format("%.2f", data.getDouble("helium")) + " L He)", 14, y, leftWidth - 12,
                 data.getBoolean("cryoReady") ? GOOD : WARN);
@@ -234,20 +234,20 @@ public class ComputerScreen extends ModScreen {
         y = section(context, "Collisions and radiation", y);
         row(context, "Collision rate", UnitFormat.rate(data.getDouble("collisionRate")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Total collisions", Long.toString(data.getLong("collisions")), 14, y,
                 leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Luminosity", String.format("%.3e cm-2 s-1", data.getDouble("luminosity")),
                 14, y, leftWidth - 12, TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Dose rate", UnitFormat.dose(data.getDouble("dose")), 14, y, leftWidth - 12,
                 data.getDouble("dose") > 10.0 ? BAD : TEXT);
-        y += 11;
+        y += TEXT_STEP;
         row(context, "Construction", data.getInt("builtOk") + " ok / " + data.getInt("errors")
                 + " errors", 14, y, leftWidth - 12,
                 data.getInt("errors") > 0 ? BAD : GOOD);
-        y += 11;
+        y += TEXT_STEP;
         if (!data.getString("failure").isEmpty()) {
             text(context, "Fault: " + data.getString("failure"), 14, y, BAD);
         }

@@ -118,6 +118,8 @@ public class BlueprintScreen extends ModScreen {
         progress(context, 14, 74, width - 28, 6, ok + errors == 0 ? 0.0
                 : (double) ok / (ok + errors), GOOD);
 
+        contentTop = 88;
+        beginContent(context);
         switch (mode) {
             case 0 -> renderOverview(context, data);
             case 1 -> renderConstruction(context, data);
@@ -126,13 +128,15 @@ public class BlueprintScreen extends ModScreen {
             case 4 -> renderSystems(context, data);
             default -> renderDiagnostics(context, data);
         }
+        endContent(context);
         super.render(context, mouseX, mouseY, delta);
     }
 
     private void renderOverview(DrawContext context, NbtCompound data) {
         int y = 90;
+        int textWidth = width - 24;
         text(context, "How to build it", 14, y, WARN);
-        y += 12;
+        y += TEXT_STEP;
         for (String line : List.of(
                 "1. Deploy the blueprint where the centre of the machine should be.",
                 "2. Every ghost is the real block, translucent: its texture tells you what to make.",
@@ -142,41 +146,48 @@ public class BlueprintScreen extends ModScreen {
                 "6. Place the control computer next to the ring and start the machine there.",
                 "7. Pump the beam pipe down, inject, then ramp the magnets to the beam energy.",
                 "8. Focus the quadrupoles: the beam only survives inside the stability region.")) {
-            text(context, line, 14, y, TEXT);
-            y += 11;
+            textClipped(context, line, 14, y, textWidth, TEXT);
+            y += TEXT_STEP;
         }
         y += 6;
-        text(context, "Sections: " + data.getInt("sections") + "   beam path blocks: "
+        textClipped(context, "Sections: " + data.getInt("sections") + "   beam path blocks: "
                 + data.getInt("components") + "   total blocks: " + data.getInt("slots"), 14, y,
-                DIM);
-        text(context, "Rotation: design aligned to " + data.getString("rotation"), 14, y + 12,
-                DIM);
-        y += 24;
-        text(context, "Ghost outline colours: subsystem when the block is missing, amber when the "
-                + "block there is wrong or rotated.", 14, y, DIM);
-        text(context, "Use 'Ghosts: whole design' to preview the shielding and the service ring too.",
-                14, y + 12, DIM);
+                textWidth, DIM);
+        y += TEXT_STEP;
+        textClipped(context, "Rotation: design aligned to " + data.getString("rotation"), 14, y,
+                textWidth, DIM);
+        y += TEXT_STEP + 4;
+        textClipped(context, "Ghost outline colours: subsystem when the block is missing, amber "
+                + "when the block there is wrong or rotated.", 14, y, textWidth, DIM);
+        y += TEXT_STEP;
+        textClipped(context, "Use 'Ghosts: whole design' to preview the shielding and the service "
+                + "ring too.", 14, y, textWidth, DIM);
+        contentHeight = y + TEXT_STEP - 88;
     }
 
     private void renderConstruction(DrawContext context, NbtCompound data) {
         List<NbtCompound> issues = ClientState.compounds(data, "issues");
         int y = 90;
         text(context, "Live validation - the server checks the blocks in the world", 14, y, WARN);
-        y += 12;
+        y += TEXT_STEP;
         progress(context, 14, y, width - 28, 6, data.getInt("cycle") / 8.0, BORDER);
-        y += 12;
+        y += TEXT_STEP;
         if (issues.isEmpty()) {
             text(context, "No errors: the machine matches the design.", 14, y, GOOD);
+            contentHeight = y + TEXT_STEP - 88;
             return;
         }
+        int textWidth = width - 24;
         int shown = 0;
         for (int i = page * 14; i < issues.size() && shown < 14; i++, shown++) {
             NbtCompound issue = issues.get(i);
             int colour = issue.getBoolean("error") ? BAD : WARN;
-            text(context, issue.getString("text") + "   [" + issue.getInt("x") + ", "
-                    + issue.getInt("y") + ", " + issue.getInt("z") + "]", 14, y, colour);
-            y += 11;
+            textClipped(context, issue.getString("text") + "   [" + issue.getInt("x") + ", "
+                    + issue.getInt("y") + ", " + issue.getInt("z") + "]", 14, y, textWidth,
+                    colour);
+            y += TEXT_STEP;
         }
+        contentHeight = y + TEXT_STEP - 88;
         button("More", 14, y + 4, 60, 18, () -> page++);
         button("Less", 80, y + 4, 60, 18, () -> page = Math.max(0, page - 1));
     }
@@ -185,7 +196,7 @@ public class BlueprintScreen extends ModScreen {
         List<NbtCompound> materials = ClientState.compounds(data, "materials");
         int y = 92;
         text(context, "Material checklist", 14, y, WARN);
-        y += 12;
+        y += TEXT_STEP;
         int requiredTotal = 0;
         int placedTotal = 0;
         for (NbtCompound material : materials) {
@@ -194,7 +205,7 @@ public class BlueprintScreen extends ModScreen {
         }
         row(context, "Overall", placedTotal + " / " + requiredTotal, 14, y, width - 28,
                 placedTotal >= requiredTotal ? GOOD : WARN);
-        y += 12;
+        y += TEXT_STEP;
         progress(context, 14, y, width - 28, 6, requiredTotal == 0 ? 0.0
                 : (double) placedTotal / requiredTotal, GOOD);
         y += 14;
@@ -205,8 +216,9 @@ public class BlueprintScreen extends ModScreen {
             int placed = material.getInt("placed");
             row(context, material.getString("name"), placed + " / " + required, 14, y, width - 28,
                     placed >= required ? GOOD : WARN);
-            y += 11;
+            y += TEXT_STEP;
         }
+        contentHeight = y + TEXT_STEP - 88;
         button("More", 14, height - 58, 60, 18, () -> page++);
         button("Less", 80, height - 58, 60, 18, () -> page = Math.max(0, page - 1));
     }
@@ -239,11 +251,12 @@ public class BlueprintScreen extends ModScreen {
             text(context, systems[i], x + 12, row, TEXT);
         }
         y += 14 * ((systems.length + 1) / 2) + 10;
-        text(context, "Ghost colours use the same palette: place each component on its own line.",
-                14, y, DIM);
-        y += 12;
-        text(context, "Magnet blocks: " + data.getInt("components") + " components total", 14, y,
-                DIM);
+        textClipped(context, "Ghost colours use the same palette: place each component on its own "
+                + "line.", 14, y, width - 24, DIM);
+        y += TEXT_STEP;
+        textClipped(context, "Magnet blocks: " + data.getInt("components") + " components total",
+                14, y, width - 24, DIM);
+        contentHeight = y + TEXT_STEP - 88;
     }
 
     private void renderDiagnostics(DrawContext context, NbtCompound data) {
@@ -252,33 +265,35 @@ public class BlueprintScreen extends ModScreen {
         y += 14;
         row(context, "Beam energy", String.format("%.3g MeV", data.getDouble("energy")), 14, y,
                 width - 28, TEXT);
-        y += 12;
+        y += TEXT_STEP;
         row(context, "Dipole field", String.format("%.3f T", data.getDouble("field")), 14, y,
                 width - 28, TEXT);
-        y += 12;
+        y += TEXT_STEP;
         row(context, "Vacuum", String.format("%.2e Pa", data.getDouble("vacuum")), 14, y,
                 width - 28, TEXT);
-        y += 12;
+        y += TEXT_STEP;
         row(context, "Dose rate",
                 com.particlephysics.client.UnitFormat.dose(data.getDouble("dose")), 14, y,
                 width - 28, TEXT);
-        y += 12;
+        y += TEXT_STEP;
         row(context, "Machine", data.getBoolean("running") ? "RUNNING" : "STANDBY", 14, y,
                 width - 28, data.getBoolean("running") ? GOOD : DIM);
         y += 14;
         String failure = data.getString("failure");
         if (!failure.isEmpty()) {
             text(context, "Fault: " + failure, 14, y, BAD);
-            y += 12;
+            y += TEXT_STEP;
         }
         text(context, "Recent events", 14, y, WARN);
-        y += 12;
+        y += TEXT_STEP;
         int shown = 0;
         for (int i = page * 10; i < ClientState.compounds(data, "log").size() && shown < 10;
                 i++, shown++) {
-            text(context, ClientState.compounds(data, "log").get(i).getString("text"), 14, y, DIM);
-            y += 11;
+            textClipped(context, ClientState.compounds(data, "log").get(i).getString("text"), 14, y,
+                    width - 24, DIM);
+            y += TEXT_STEP;
         }
+        contentHeight = y + TEXT_STEP - 88;
         button("More", 14, height - 58, 60, 18, () -> page++);
         button("Less", 80, height - 58, 60, 18, () -> page = Math.max(0, page - 1));
     }
