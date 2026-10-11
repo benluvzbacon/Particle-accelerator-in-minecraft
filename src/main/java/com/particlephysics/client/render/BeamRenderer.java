@@ -14,8 +14,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
@@ -38,26 +38,44 @@ import net.minecraft.util.math.random.Random;
 /**
  * Draws the machine in the world: ghost blocks that are the real block models, and the beam path.
  *
- * <p>Two rules are respected here, and they matter:
+ * <p>Three rules are respected here, and they matter:
  *
  * <ol>
- *   <li><b>Own buffers only.</b> Every quad goes into a {@link BufferBuilder} this class creates and
- *       draws in the same callback. The shared vertex consumer pool is never touched, because a
- *       buffer that the world renderer has already flushed cannot be appended to ("Not building!").
+ *   <li><b>Own buffers only.</b> Every vertex goes into a {@link BufferBuilder} this class creates
+ *       and draws inside the same callback. The shared vertex consumer pool is never touched: a
+ *       buffer the world renderer has already flushed cannot be appended to, and asking for one
+ *       again is what throws "Not building!" and kills the game.
  *   <li><b>Real models.</b> A ghost is the actual model of the block that has to be placed there,
  *       drawn translucent with the block atlas, so the player sees which block is wanted instead of
  *       guessing from a colour.
+ *   <li><b>Never an empty buffer.</b> A buffer is only started when at least one quad or line is
+ *       known to go into it, so there is nothing to leak and nothing to draw twice.
  * </ol>
  *
- * <p>A wireframe coloured by subsystem surrounds each ghost; it turns amber when the block that is
- * there is the wrong one or is rotated the wrong way. Anything already correct is not drawn at all.
- * If rendering ever throws, the error is logged once and the frame is skipped rather than taken
- * down.
+ * <p>A wireframe coloured by subsystem surrounds every ghost and turns amber when the block that is
+ * there is the wrong one or is rotated the wrong way. Blocks that are already correct are not drawn
+ * at all. If rendering ever throws, the error is logged once and the frame is skipped instead of
+ * taking the game down.
  */
 public final class BeamRenderer {
     /** Above this many ghosts per frame the preview is cut off, to keep the frame time sane. */
-    private static final int MAX_GHOSTS = 320;
+    private static final int MAX_GHOSTS = 384;
     private static boolean warned;
+
+    /** One ghost to draw: a position relative to the camera plus what belongs there. */
+    private static final class Ghost {
+        double x;
+        double y;
+        double z;
+        Block block;
+        int state;
+        int colour;
+    }
+
+    /** Reused between frames so that drawing costs no allocations. */
+    private static final List<Ghost> GHOSTS = new ArrayList<>();
+    private static int ghostCount;
+    private static final List<Vec3d> PATH = new ArrayList<>();
 
     private BeamRenderer() {
     }
@@ -69,7 +87,8 @@ public final class BeamRenderer {
             if (!warned) {
                 warned = true;
                 ParticleAcceleratorMod.LOGGER.error(
-                        "Particle Accelerator: world rendering failed and was disabled: {}", t.toString());
+                        "Particle Accelerator: world rendering failed and was disabled: {}",
+                        t.toString());
             }
         }
     }
@@ -87,73 +106,70 @@ public final class BeamRenderer {
         Vec3d camera = context.camera().getPos();
         NbtCompound blueprint = ClientState.blueprint;
         NbtCompound status = ClientState.computer != null ? ClientState.computer : blueprint;
+        boolean showGhosts = config.renderGhosts && blueprint != null;
+        boolean showBeam = config.renderBeam && status != null && status.getBoolean("running");
 
-        if (!config.renderGhosts) {
-            ClientState.nearestGhostName = "";
-            ClientState.nearestGhostDistance = -1.0;
-            if (!config.renderBeam) {
-                return;
-            }
+        collectGhosts(client, blueprint, camera, config, showGhosts);
+        if (!showGhosts && !showBeam) {
+            return;
         }
 
         Tessellator tessellator = Tessellator.getInstance();
 
         // --- ghost blocks: the real block models, translucent ---------------------------------
-        if (config.renderGhosts && blueprint != null) {
-            drawGhosts(client, tessellator, matrices, camera, blueprint, config);
-        } else if (blueprint == null) {
-            ClientState.nearestGhostName = "";
-            ClientState.nearestGhostDistance = -1.0;
+        if (ghostCount > 0) {
+            drawGhostModels(client, tessellator, matrices);
         }
 
-        // --- wireframes and the beam: one line buffer -----------------------------------------
-        BufferBuilder lines = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES,
-                VertexFormats.POSITION_COLOR);
-        int lineCount = 0;
-        if (config.renderGhosts && blueprint != null) {
-            lineCount += addGhostOutlines(matrices, lines, camera, blueprint, config);
-        }
-        if (config.renderBeam && status != null && status.getBoolean("running")) {
-            lineCount += addBeam(matrices, lines, camera, status);
-        }
-        BuiltBuffer built = lines.endNullable();
-        if (built != null && lineCount > 0) {
-            RenderSystem.setShader(GameRenderer::getRenderTypeLinesProgram);
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-            RenderSystem.lineWidth(2.0f);
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            BufferRenderer.drawWithGlobalProgram(built);
-            RenderSystem.lineWidth(1.0f);
-            RenderSystem.disableBlend();
+        // --- wireframes and the beam, in one line buffer --------------------------------------
+        if (ghostCount > 0 || showBeam) {
+            BufferBuilder lines = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES,
+                    VertexFormats.POSITION_COLOR);
+            addGhostOutlines(matrices, lines);
+            if (showBeam) {
+                addBeam(matrices, lines, camera, status);
+            }
+            BuiltBuffer built = lines.endNullable();
+            if (built != null) {
+                RenderSystem.setShader(GameRenderer::getRenderTypeLinesProgram);
+                RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+                RenderSystem.lineWidth(2.0f);
+                RenderSystem.enableBlend();
+                RenderSystem.defaultBlendFunc();
+                BufferRenderer.drawWithGlobalProgram(built);
+                RenderSystem.lineWidth(1.0f);
+                RenderSystem.disableBlend();
+            }
         }
     }
 
     // --------------------------------------------------------------------------------------------
-    // Ghost blocks
+    // Ghost selection
     // --------------------------------------------------------------------------------------------
 
-    private static void drawGhosts(MinecraftClient client, Tessellator tessellator,
-                                   MatrixStack matrices, Vec3d camera, NbtCompound blueprint,
-                                   ModConfig config) {
+    private static void collectGhosts(MinecraftClient client, NbtCompound blueprint, Vec3d camera,
+                                      ModConfig config, boolean showGhosts) {
+        ghostCount = 0;
+        ClientState.nearestGhostName = "";
+        ClientState.nearestGhostDistance = -1.0;
+        if (!showGhosts) {
+            return;
+        }
         int[] px = blueprint.getIntArray("px");
         int[] py = blueprint.getIntArray("py");
         int[] pz = blueprint.getIntArray("pz");
+        int[] pk = blueprint.getIntArray("pk");
         int[] state = blueprint.getIntArray("pstate");
         List<String> blocks = ClientState.strings(blueprint, "blocks");
-        if (px.length == 0 || blocks.isEmpty()) {
-            return;
-        }
-        BlockRenderManager blockRenderer = client.getBlockRenderManager();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS,
-                VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL);
-        Random random = Random.create(1234L);
+        int limit = Math.min(px.length, blocks.size());
         double rangeSquared = config.ghostRenderDistance * config.ghostRenderDistance;
-        int drawn = 0;
-        for (int i = 0; i < px.length && i < blocks.size(); i++) {
+        Vec3d player = client.player.getPos();
+        String nearestName = "";
+        double nearest = -1.0;
+        for (int i = 0; i < limit; i++) {
             int stateHere = i < state.length ? state[i] : 0;
             if (stateHere >= 2) {
-                // already built correctly: there is nothing left to show
+                // already built correctly: there is nothing left to show for this block
                 continue;
             }
             double vx = px[i] + 0.5 - camera.x;
@@ -162,21 +178,63 @@ public final class BeamRenderer {
             if (vx * vx + vy * vy + vz * vz > rangeSquared) {
                 continue;
             }
-            if (drawn >= MAX_GHOSTS) {
-                break;
-            }
             Block block = resolve(blocks.get(i));
             if (block == null) {
                 continue;
             }
-            // dim, cold hologram; brighter for a block that is missing than for a wrong one
-            float shade = stateHere == 1 ? 0.42f : 0.62f;
-            addModel(buffer, matrices, random, block, vx - 0.5, vy - 0.5, vz - 0.5, shade,
-                    stateHere == 1 ? 0.30f : 0.55f);
-            drawn++;
+            if (ghostCount < MAX_GHOSTS) {
+                Ghost ghost = nextGhost();
+                ghost.x = vx - 0.5;
+                ghost.y = vy - 0.5;
+                ghost.z = vz - 0.5;
+                ghost.block = block;
+                ghost.state = stateHere;
+                ghost.colour = pk.length > i && pk[i] >= 0
+                        ? MachineKind.values()[Math.min(pk[i], MachineKind.values().length - 1)]
+                                .system().colour()
+                        : 0xBFBFB8;
+            }
+            double dx = px[i] + 0.5 - player.x;
+            double dy = py[i] + 0.5 - player.y;
+            double dz = pz[i] + 0.5 - player.z;
+            double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            if (nearest < 0 || distance < nearest) {
+                nearest = distance;
+                nearestName = block.getName().getString();
+            }
+        }
+        ClientState.nearestGhostName = nearestName;
+        ClientState.nearestGhostDistance = nearest;
+    }
+
+    private static Ghost nextGhost() {
+        if (ghostCount < GHOSTS.size()) {
+            return GHOSTS.get(ghostCount++);
+        }
+        Ghost ghost = new Ghost();
+        GHOSTS.add(ghost);
+        ghostCount++;
+        return ghost;
+    }
+
+    /** Renders one block model per missing block, translucent, with the block's own texture. */
+    private static void drawGhostModels(MinecraftClient client, Tessellator tessellator,
+                                        MatrixStack matrices) {
+        BlockRenderManager blockRenderer = client.getBlockRenderManager();
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS,
+                VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL);
+        Random random = Random.create(1234L);
+        int written = 0;
+        for (int i = 0; i < ghostCount; i++) {
+            Ghost ghost = GHOSTS.get(i);
+            if (ghost.state != 0) {
+                // a wrong block is left visible on its own; only its outline is drawn
+                continue;
+            }
+            written += addModel(buffer, matrices, random, ghost.block, ghost.x, ghost.y, ghost.z);
         }
         BuiltBuffer built = buffer.endNullable();
-        if (built == null || drawn == 0) {
+        if (built == null || written == 0) {
             return;
         }
         RenderSystem.setShader(GameRenderer::getRenderTypeEntityTranslucentProgram);
@@ -192,88 +250,50 @@ public final class BeamRenderer {
         RenderSystem.disableBlend();
     }
 
-    /** Appends one block model, in view space, to the quad buffer. */
-    private static void addModel(BufferBuilder buffer, MatrixStack matrices, Random random,
-                                 Block block, double x, double y, double z, float shade,
-                                 float alpha) {
+    /** Appends one block model, in view space; returns how many quads were written. */
+    private static int addModel(BufferBuilder buffer, MatrixStack matrices, Random random,
+                                Block block, double x, double y, double z) {
         BlockState state = block.getDefaultState();
         BakedModel model = MinecraftClient.getInstance().getBlockRenderManager().getModel(state);
+        int quads = 0;
         matrices.push();
         matrices.translate(x, y, z);
         MatrixStack.Entry entry = matrices.peek();
         for (Direction direction : Direction.values()) {
             for (var quad : model.getQuads(state, direction, random)) {
-                buffer.quad(entry, quad, shade, shade * 1.05f, 1.0f, alpha,
+                buffer.quad(entry, quad, 0.62f, 0.65f, 1.0f, 0.55f,
                         LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV);
+                quads++;
             }
         }
         for (var quad : model.getQuads(state, null, random)) {
-            buffer.quad(entry, quad, shade, shade * 1.05f, 1.0f, alpha,
+            buffer.quad(entry, quad, 0.62f, 0.65f, 1.0f, 0.55f,
                     LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV);
+            quads++;
         }
         matrices.pop();
+        return quads;
     }
 
-    /** Appends the subsystem-coloured outlines, and returns how many were added. */
-    private static int addGhostOutlines(MatrixStack matrices, VertexConsumer lines, Vec3d camera,
-                                        NbtCompound blueprint, ModConfig config) {
-        int[] px = blueprint.getIntArray("px");
-        int[] py = blueprint.getIntArray("py");
-        int[] pz = blueprint.getIntArray("pz");
-        int[] pk = blueprint.getIntArray("pk");
-        int[] state = blueprint.getIntArray("pstate");
-        int count = 0;
-        double rangeSquared = config.ghostRenderDistance * config.ghostRenderDistance;
-        String nearestName = "";
-        double nearest = -1.0;
-        Vec3d player = MinecraftClient.getInstance().player.getPos();
-        List<String> blocks = ClientState.strings(blueprint, "blocks");
-        for (int i = 0; i < px.length; i++) {
-            int stateHere = i < state.length ? state[i] : 0;
-            if (stateHere >= 2) {
-                continue;
-            }
-            double vx = px[i] + 0.5 - camera.x;
-            double vy = py[i] + 0.5 - camera.y;
-            double vz = pz[i] + 0.5 - camera.z;
-            if (vx * vx + vy * vy + vz * vz > rangeSquared) {
-                continue;
-            }
+    private static void addGhostOutlines(MatrixStack matrices, VertexConsumer lines) {
+        for (int i = 0; i < ghostCount; i++) {
+            Ghost ghost = GHOSTS.get(i);
             float r;
             float g;
             float b;
-            if (stateHere == 1) {
+            if (ghost.state == 1) {
+                // the block standing there is wrong: amber, so the player finds it immediately
                 r = 1.0f;
                 g = 0.65f;
                 b = 0.15f;
             } else {
-                int colour = pk.length > i && pk[i] >= 0
-                        ? MachineKind.values()[Math.min(pk[i], MachineKind.values().length - 1)]
-                                .system().colour()
-                        : 0xBFBFB8;
-                r = ((colour >> 16) & 0xFF) / 255.0f;
-                g = ((colour >> 8) & 0xFF) / 255.0f;
-                b = (colour & 0xFF) / 255.0f;
+                r = ((ghost.colour >> 16) & 0xFF) / 255.0f;
+                g = ((ghost.colour >> 8) & 0xFF) / 255.0f;
+                b = (ghost.colour & 0xFF) / 255.0f;
             }
-            WorldRenderer.drawBox(matrices, lines, vx - 0.5, vy - 0.5, vz - 0.5, vx + 0.5, vy + 0.5,
-                    vz + 0.5, r, g, b, stateHere == 1 ? 0.95f : 0.6f);
-            count++;
-
-            if (i < blocks.size()) {
-                double dx = px[i] + 0.5 - player.x;
-                double dy = py[i] + 0.5 - player.y;
-                double dz = pz[i] + 0.5 - player.z;
-                double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-                if (nearest < 0 || distance < nearest) {
-                    nearest = distance;
-                    Block block = resolve(blocks.get(i));
-                    nearestName = block == null ? "" : block.getName().getString();
-                }
-            }
+            WorldRenderer.drawBox(matrices, lines, ghost.x, ghost.y, ghost.z, ghost.x + 1.0,
+                    ghost.y + 1.0, ghost.z + 1.0, r, g, b, ghost.state == 1 ? 0.95f : 0.6f);
         }
-        ClientState.nearestGhostName = nearestName;
-        ClientState.nearestGhostDistance = nearest;
-        return count;
     }
 
     private static Block resolve(String id) {
@@ -288,16 +308,16 @@ public final class BeamRenderer {
     // Beam
     // --------------------------------------------------------------------------------------------
 
-    private static int addBeam(MatrixStack matrices, VertexConsumer lines, Vec3d camera,
-                               NbtCompound status) {
+    private static void addBeam(MatrixStack matrices, VertexConsumer lines, Vec3d camera,
+                                NbtCompound status) {
         double energyMeV = status.getDouble("energy");
         Vec3d origin = new Vec3d(status.getInt("x") + 0.5, status.getInt("y") + 0.5,
                 status.getInt("z") + 0.5);
         int radius = Math.max(4, status.getInt("size"));
         boolean ring = status.getBoolean("ring");
-        List<Vec3d> path = ring ? circle(origin, radius) : line(origin, radius);
-        if (path.size() < 2) {
-            return 0;
+        buildPath(origin, radius, ring);
+        if (PATH.size() < 2) {
+            return;
         }
         // colour: red at low energy, blue-white at high energy (the beam gets "hotter")
         double t = Math.min(1.0, Math.log10(Math.max(1.0, energyMeV)) / 8.0);
@@ -305,31 +325,27 @@ public final class BeamRenderer {
         float g = (float) (0.4 + 0.5 * t);
         float b = (float) (0.9 - 0.2 * t);
         float pulse = (float) (0.45 + 0.35 * Math.sin(System.currentTimeMillis() / 120.0));
-        for (int i = 0; i < path.size(); i++) {
-            Vec3d from = path.get(i).subtract(camera);
-            Vec3d to = path.get((i + 1) % path.size()).subtract(camera);
+        for (int i = 0; i < PATH.size(); i++) {
+            Vec3d from = PATH.get(i).subtract(camera);
+            Vec3d to = PATH.get((i + 1) % PATH.size()).subtract(camera);
             WorldRenderer.drawBox(matrices, lines, from.x - 0.06, from.y - 0.06, from.z - 0.06,
                     to.x + 0.06, to.y + 0.06, to.z + 0.06, r, g, b, pulse);
         }
-        return path.size();
     }
 
-    private static List<Vec3d> circle(Vec3d origin, int radius) {
-        List<Vec3d> path = new ArrayList<>();
-        int steps = Math.max(32, radius * 8);
-        for (int i = 0; i < steps; i++) {
-            double angle = 2.0 * Math.PI * i / steps;
-            path.add(new Vec3d(origin.x + radius * Math.cos(angle), origin.y + 0.5,
-                    origin.z + radius * Math.sin(angle)));
+    private static void buildPath(Vec3d origin, int radius, boolean ring) {
+        PATH.clear();
+        if (ring) {
+            int steps = Math.max(32, radius * 8);
+            for (int i = 0; i < steps; i++) {
+                double angle = 2.0 * Math.PI * i / steps;
+                PATH.add(new Vec3d(origin.x + radius * Math.cos(angle), origin.y + 0.5,
+                        origin.z + radius * Math.sin(angle)));
+            }
+        } else {
+            for (int i = -radius; i <= radius; i += 2) {
+                PATH.add(new Vec3d(origin.x + i, origin.y + 0.5, origin.z));
+            }
         }
-        return path;
-    }
-
-    private static List<Vec3d> line(Vec3d origin, int length) {
-        List<Vec3d> path = new ArrayList<>();
-        for (int i = -length; i <= length; i += 2) {
-            path.add(new Vec3d(origin.x + i, origin.y + 0.5, origin.z));
-        }
-        return path;
     }
 }

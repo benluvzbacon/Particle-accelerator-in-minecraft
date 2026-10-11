@@ -60,6 +60,7 @@ public class DetectorScreen extends ModScreen {
                 26, width - 28, WARN);
 
         int left = 14;
+        int right = 268;
         int y = contentTop + 2;
         beginContent(context);
         text(context, "Particle identification", left, y, 0x7FD8FF);
@@ -111,7 +112,7 @@ public class DetectorScreen extends ModScreen {
                 GOOD);
 
         int ry = contentTop + 2;
-        text(context, "What this detector measures", right, ry, 0x7FD8FF);
+        textClipped(context, "What this detector measures", right, ry, width - right - 16, ACCENT);
         ry += 13;
         for (String line : java.util.List.of(
                 "Tracking detector: charged particle tracks, momentum from curvature.",
